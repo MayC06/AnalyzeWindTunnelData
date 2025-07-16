@@ -1,0 +1,13 @@
+# Data file types to ignore
+*.csv
+*.mat
+*.svg
+*.eps
+*.npy
+*.pickle
+*.pkl
+*.ai
+*.parquet
+*.jpg
+*.afdesign
+*.afdesign*
