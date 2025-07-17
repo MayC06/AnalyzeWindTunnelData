@@ -229,9 +229,6 @@ def compute_angular_dispersion(traj_list,start,end,plotting=False,ax=None):
     
 ## Example run scripts.
 
-traj_list0 = get_trajlist_from_behdata('orco20_PWM_flash_postQC.csv',-500.0,2000.0,windspeed=0.0)
-traj_list4 = get_trajlist_from_behdata('orco60_PWM_flash_postQC.csv',-500.0,2000.0,windspeed=4.0)
-traj_list15 = get_trajlist_from_behdata('orco_100PWM_flash_postQC.csv',-500.0,2000.0,windspeed=15.0)
 traj_list40 = get_trajlist_from_behdata('OrcoCsChrimson_laminar_wind_merged.csv',-500.0,2000.0,windspeed=40.0)
 
 
