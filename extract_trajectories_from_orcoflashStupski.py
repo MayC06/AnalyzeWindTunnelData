@@ -58,7 +58,7 @@ def get_trajlist_from_behdata(csv,trajstart,trajstop,windspeed=40):
         smoothg, dg = pynumdiff.linear_model.savgoldiff(g,10,[3,10,10])
         traj['ground speed smooth dot'] = dg.copy()
         o = np.abs(traj['heading'])
-        traj['up-down-cross']=0 
+        traj['up-down-cross']=0
         traj['up-down-cross'] = np.where( o<=np.pi/4, 1, 
                                          traj['up-down-cross'])
         traj['up-down-cross'] = np.where( o>3*np.pi/4, -1, 
@@ -69,6 +69,25 @@ def get_trajlist_from_behdata(csv,trajstart,trajstop,windspeed=40):
         traj_list.append(traj)
     
     return traj_list
+
+def set_up_down_cross(traj,num=8,centered_on=0):
+    '''
+    Parameters
+    ----------
+    num : int, optional
+        Number of upwind/downwind values to compute between -1 and 1 as a
+        success metric for flies performing olfactory navigation. The default 
+        is 8.
+    centered_zero : float, optional
+        Direction in radians for the center of upwind (will receive value of 
+        1). The default is 0.0.
+
+    Returns
+    -------
+    None.
+
+    '''
+    
 
 
 def get_distribution(traj_list,variable,start,end,plotting,bins=30):
@@ -196,7 +215,7 @@ def sep_by_value(traj_list,variable,start,end,threshold):
     above = []
     for i in range(len(traj_list)):
         testdata = traj_list[i][variable].loc[start:end]
-        if np.nanmean(testdata)<threshold:
+        if np.nanmean(np.abs(testdata))<threshold:
             below.append(traj_list[i])
         else: above.append(traj_list[i])
         
@@ -226,57 +245,33 @@ def compute_angular_dispersion(traj_list,start,end,plotting=False,ax=None):
     return angdisps
 
 
+def compute_airspeed_angle(v_para,v_perp,w,phi,zeta):
+    '''
+    To compute airspeed angle for David Stupski published data.
+
+    Parameters
+    ----------
+    v_para : 1D numpy array
+        Vector of forward velocities. Produced by decomposing groundspeed 
+        vector along heading.
+    v_perp : 1D numpy array
+        Vector of lateral velocities. Produced by decomposing groundspeed
+        vector along heading.
+    w : 1D numpy array
+        Vector of windspeeds.
+    phi : 1D numpy array
+        Vector of headings.
+    zeta : 1D numpy array
+        Vector of wind directions.
+
+    Returns
+    -------
+    None.
+
+    '''
+    a_para = v_para - w * np.cos(phi - zeta)  # in fly ref frame
+    a_perp = v_perp + w * np.sin(phi - zeta)  # in fly ref frame
+    gamma = np.arctan2(a_perp, a_para)  # air velocity angle   ### in fly ref frame?
     
-## Example run scripts.
+    return gamma
 
-traj_list40 = get_trajlist_from_behdata('OrcoCsChrimson_laminar_wind_merged.csv',-500.0,2000.0,windspeed=40.0)
-
-
-
-
-# all_wvg150to340 = np.vstack([w4_wvg150to340,w15_wvg150to340,w40_wvg150to340])
-# all_success810to1000 = np.vstack([w4_success810to1000,w15_success810to1000,w40_success810to1000])
-# fig,ax = plt.subplots();\
-# ax.scatter(np.max(all_wvg150to340,axis=1),np.nanmean(all_success810to1000,axis=1),alpha=0.3);\
-# ax.set_xscale('log');\
-# plt.savefig('all_meanSuccess810to1000_vs_all_maxWvg150to340.svg')
-
-# fig,ax = plt.subplots();\
-# ax.scatter(np.max(all_wvg150to340,axis=1),abs(np.nanmean(all_head810to1000,axis=1)),alpha=0.3);\
-# ax.set_xscale('log');\
-# plt.savefig('all_head810to1000_vs_all_wvg150to340.svg')
-
-
-# fig,ax = plt.subplots();\
-# ax.plot(traj_list40[0]['heading']);\
-# ax.plot(np.abs(traj_list40[0]['ang vel']));
-
-
-# decels = []
-# phi0s = []
-# for traj in traj_list100:
-#     decel = min(traj['ground speed'][0.0:250.0]) - traj['ground speed'][-50.0:0.0].mean()
-#     deceltime = traj['ground speed'][0.0:250.0].idxmin() / 1000   # time to min groundspeed from opto on in seconds
-#     decels.append(decel/deceltime)
-#     phi0s.append(traj['heading'][-50.0:0.0].mean())
-
-
-# fig,ax = plt.subplots(figsize=(5,5));\
-# ax.scatter(phi0s,decels,s=5);\
-# ax.set_ylim(-12.5,2);\
-# ax.invert_yaxis();
-# plt.savefig('Stupski-orco100_phi0s-vs-decels.svg')
-
-# fig,ax = plt.subplots(figsize=(5,5));
-# for traj in traj_list100:
-#     ax.plot(traj['ground speed'],'k',linewidth=0.1)
-    
-    
-# count=0
-# fig,ax = plt.subplots(figsize=(5,5));
-# for traj in traj_list20:
-#     print(count)
-#     a = traj['ground speed']
-#     smootha,da = pynumdiff.linear_model.savgoldiff(a,10,[3,10,10])
-#     ax.plot(traj.index,da,'k',linewidth=0.1)
-#     count+=1
