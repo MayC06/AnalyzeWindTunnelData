@@ -40,3 +40,16 @@ def unwrap_angle(z, correction_window_for_2pi=100, n_range=2):
     #     plt.plot(smooth_zs, '.', color='black', markersize=1)
         
     return smooth_zs
+
+def circular_diff(a, b, period=8):
+    """
+    Calculate the directional circular difference between values in two arrays
+    a and b.
+
+    Period is the total linear distance of the circular values. For example,
+    the default period of 8 represents the 8 columns of the FB, and should
+    produce difference values from -4 to 4, non-inclusive, because the maximum
+    distance away any two points on the circle can be is 4 columns.
+    """
+    diff = np.mod(b - a, period)
+    return np.where(diff > period / 2, diff - period, diff)
